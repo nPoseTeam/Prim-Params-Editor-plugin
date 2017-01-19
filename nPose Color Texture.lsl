@@ -1,25 +1,10 @@
 // linkMessageFormat:
 // num=-8050
-// str=command~scope~link~parameters[~command~....]
+// str=command~link~parameters[~command~....]
 // key=whatever
 // command: see LOOKUP_TABLE
-// scope:
-//     "" (empty) or "main": the command should not be relayed to props. It only affects the main nPose object
-//     "*" or "all": the command will be relayed to props and also affects the main nPose object
-//     "?" or "props": the command will be relayed to props but does not affects the main nPose obejct
-// link: the linkNumber or the linkDescription
+// link: the linkDescription (or the linkNumber)
 // parameters: a list of parameters (specific to the command) separated by "~"
-
-list SavedParams;
-// this list stores all params that may be used in a prop
-// Stride Format:
-// [command, link, face, params]
-// command: the command, see LOOKUP_TABLE
-// link: the linkNumber (integer) or the linkDescription (string)
-// face: the facenumber (only valid if the command has set the containsFaceNumber flag)
-// params: a string that contains the params
-
-
 
 // LOOKUP_TABLE
 // contains the command definition. Stride:
@@ -71,9 +56,6 @@ list LOOKUP_TABLE=[
 
 
 integer SET_PRIMITIVE_PARAMS=-8050;
-integer OLD_TEXTURE_CHANGER=-22452987;
-integer ON_PROP_REZZED=-790;
-integer CORERELAY=300;
 integer MEMORY_USAGE=34334;
 
 list LinkNumberList; //2-strided list [linkDescription, linkNumber]
@@ -92,8 +74,7 @@ executeCommands(list allCommands) {
 
 list executeAndRemoveFirstCommand(list commandList) {
 	string command=llList2String(commandList, 0);
-	string scope=llList2String(commandList, 1);
-	string link=llList2String(commandList, 2);
+	string link=llList2String(commandList, 1);
 	list parameterList;
 	
 	integer index=llListFindList(LOOKUP_TABLE, [command]);
@@ -107,7 +88,7 @@ list executeAndRemoveFirstCommand(list commandList) {
 	integer numberOfParameters=llStringLength(parameterTypes);
 	for(; parameterIndex<numberOfParameters; parameterIndex++) {
 		string parameterType=llGetSubString(parameterTypes, parameterIndex, parameterIndex);
-		string parameterString=llList2String(commandList, 3+parameterIndex);
+		string parameterString=llList2String(commandList, 2+parameterIndex);
 		if(parameterType=="i") {
 			parameterList+=(integer)parameterString;
 		}
@@ -127,104 +108,41 @@ list executeAndRemoveFirstCommand(list commandList) {
 			parameterList+=(rotation)parameterString;
 		}
 	}
-	executeCommand(commandInteger, faceUsedFlag, command, scope, link, parameterList);
-	commandList=llDeleteSubList(commandList, 0, 2+numberOfParameters);
+	executeCommand(commandInteger, faceUsedFlag, command, link, parameterList);
+	commandList=llDeleteSubList(commandList, 0, 1+numberOfParameters);
 	return commandList;
 }
 
-executeCommand(integer commandInteger, integer faceUsedFlag, string command, string scope, string link, list parameterList) {
-	integer skipLocal;
-	integer skipRemote;
-	if(scope=="" || scope=="main") {
-		skipRemote=TRUE;
-	}
-	else if(scope=="?" || scope=="props") {
-		skipLocal=TRUE;
-	}
-
+executeCommand(integer commandInteger, integer faceUsedFlag, string command, string link, list parameterList) {
 	//resolve the linkNumbers
 	list linkNumbers;
-	if(!skipLocal) {
-		if((string)((integer)link)!=link) {
-			//it is a string
-			linkNumbers=getLinkNumbersFromLinkNumberList(LinkNumberList, link);
-		}
-		else {
-			linkNumbers+=link;
-		}
-		//execute the command locally
-		integer linkNumbersIndex;
-		integer linkNumbersLenght=llGetListLength(linkNumbers);
-		for(; linkNumbersIndex<linkNumbersLenght; linkNumbersIndex++) {
-			integer linkNumber=(integer)llList2String(linkNumbers, linkNumbersIndex);
-			if(commandInteger>0) {
-				llSetLinkPrimitiveParamsFast(linkNumber, [commandInteger]+parameterList);
-			}
-			else if(command=="TEXTURE") {
-				llSetLinkTexture(linkNumber, llList2String(parameterList, 1), llList2Integer(parameterList, 0));
-			}
-			else if(command=="COLOR") {
-				llSetLinkColor(linkNumber, llList2Vector(parameterList, 1), llList2Integer(parameterList, 0));
-			}
-			else if(command=="ALPHA") {
-				llSetLinkAlpha(linkNumber, llList2Float(parameterList, 1), llList2Integer(parameterList, 0));
-			}
-		}
+	if((string)((integer)link)!=link) {
+		//it is a string
+		linkNumbers=getLinkNumbersFromLinkNumberList(LinkNumberList, link);
 	}
-
-	//relay the command to props if the scope include them (remove the scope string to be sure that the props don't send them again)
-	if(!skipRemote) {
-		coreRelay(SET_PRIMITIVE_PARAMS, llDumpList2String([command, "", link]+parameterList, "~"), NULL_KEY);
-		//store the stuff if props are within the scope, so that newly rezzed props can get their initial values
-		list searchFor=[command, link];
-		integer face;
-		if(faceUsedFlag) {
-			face==llList2Integer(parameterList, 0);
-			searchFor+=face;
+	else {
+		linkNumbers+=link;
+	}
+	//execute the command locally
+	integer linkNumbersIndex;
+	integer linkNumbersLenght=llGetListLength(linkNumbers);
+	for(; linkNumbersIndex<linkNumbersLenght; linkNumbersIndex++) {
+		integer linkNumber=(integer)llList2String(linkNumbers, linkNumbersIndex);
+		if(commandInteger>0) {
+			llSetLinkPrimitiveParamsFast(linkNumber, [commandInteger]+parameterList);
 		}
-		integer index=llListFindList(SavedParams, searchFor);
-		if(~index) {
-			SavedParams=llDeleteSubList(SavedParams, index, index+3);
+		else if(command=="TEXTURE") {
+			llSetLinkTexture(linkNumber, llList2String(parameterList, 1), llList2Integer(parameterList, 0));
 		}
-		SavedParams+=[command, link, face, llDumpList2String(parameterList, "~")];
+		else if(command=="COLOR") {
+			llSetLinkColor(linkNumber, llList2Vector(parameterList, 1), llList2Integer(parameterList, 0));
+		}
+		else if(command=="ALPHA") {
+			llSetLinkAlpha(linkNumber, llList2Float(parameterList, 1), llList2Integer(parameterList, 0));
+		}
 	}
 }
 
-repeatCommands() {
-	integer length=llGetListLength(SavedParams);
-	integer index;
-	string stringToSend;
-	string stringToAppend;
-	for(; index<length; index+=4) {
-		stringToAppend=llDumpList2String([llList2String(SavedParams, index), "", llList2String(SavedParams, index+1), llList2String(SavedParams, index+3)], "~");
-		if(getStringBytes(stringToSend + stringToAppend)<1023) {
-			if(stringToSend) {
-				stringToSend+="~";
-			}
-			stringToSend+=stringToAppend;
-		}
-		else {
-			coreRelay(SET_PRIMITIVE_PARAMS, stringToSend, NULL_KEY);
-			stringToSend=stringToAppend;
-		}
-	}
-	if(stringToSend!="") {
-		coreRelay(SET_PRIMITIVE_PARAMS, stringToSend, NULL_KEY);
-	}
-}
-
-integer getStringBytes(string str) {
-	return (3 * llSubStringIndex(llStringToBase64(str)+"=", "=")) >> 2;
-}
-
-coreRelay(integer num, string str, key id) {
-	llMessageLinked(
-		LINK_SET,
-		CORERELAY,
-		llDumpList2String([num, str, id], "|"),
-		NULL_KEY
-	);
-}
 
 list getLinkNumberList() {
 	//returns a 2-strided list [linkDescription, linkNumbers (separated by ~]
@@ -293,15 +211,9 @@ default {
 		if(num==SET_PRIMITIVE_PARAMS) {
 			executeCommands(llParseStringKeepNulls(str, ["~"], []));
 		}
-		else if(num==ON_PROP_REZZED) {
-			repeatCommands();
-		}
 		else if(num==MEMORY_USAGE) {
 			llSay(0,"Memory Used by " + llGetScriptName() + ": " + (string)llGetUsedMemory() + " of " + (string)llGetMemoryLimit()
 				+ ", Leaving " + (string)llGetFreeMemory() + " memory free.");
 		}
-	}
-	on_rez(integer param) {
-		llResetScript();
 	}
 }
