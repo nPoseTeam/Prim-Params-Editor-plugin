@@ -55,7 +55,7 @@ list SavedParams;
 // face: the facenumber (only valid if the command has set the containsFaceNumber flag)
 // params: a string that contains the params
 
-integer SET_PRIMITIVE_PARAMS=-8050;
+integer PRIMCHANGE=-8050;
 integer ON_PROP_REZZED=-790;
 integer CORERELAY=300;
 integer MEMORY_USAGE=34334;
@@ -141,12 +141,12 @@ repeatCommands() {
 			stringToSend+=stringToAppend;
 		}
 		else {
-			coreRelay(SET_PRIMITIVE_PARAMS, stringToSend, NULL_KEY);
+			coreRelay(PRIMCHANGE, stringToSend, NULL_KEY);
 			stringToSend=stringToAppend;
 		}
 	}
 	if(stringToSend!="") {
-		coreRelay(SET_PRIMITIVE_PARAMS, stringToSend, NULL_KEY);
+		coreRelay(PRIMCHANGE, stringToSend, NULL_KEY);
 	}
 }
 
@@ -165,7 +165,7 @@ coreRelay(integer num, string str, key id) {
 
 default {
 	link_message(integer sender_num, integer num, string str, key id) {
-		if(num==SET_PRIMITIVE_PARAMS) {
+		if(num==PRIMCHANGE) {
 			saveCommands(llParseStringKeepNulls(str, ["~"], []));
 		}
 		else if(num==ON_PROP_REZZED) {

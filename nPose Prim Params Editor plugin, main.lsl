@@ -55,7 +55,9 @@ list LOOKUP_TABLE=[
 ];
 
 
-integer SET_PRIMITIVE_PARAMS=-8050;
+integer PLUGIN_COMMAND_REGISTER=310;
+string PLUGIN_COMMAND_NAME="PRIMEDIT";
+integer PRIMEDIT=-8050;
 integer MEMORY_USAGE=34334;
 
 list LinkNumberList; //2-strided list [linkDescription, linkNumber]
@@ -207,13 +209,20 @@ list getLinkNumbersFromLinkNumberList(list linkNumberList, string linkDesc) {
 }
 
 default {
+	state_entry() {
+		llSleep(1.0); //Wait for other scripts
+		llMessageLinked(LINK_SET, PLUGIN_COMMAND_REGISTER, llDumpList2String([PLUGIN_COMMAND_NAME, PRIMEDIT, 1], "|"), NULL_KEY); 
+	}
 	link_message(integer sender_num, integer num, string str, key id) {
-		if(num==SET_PRIMITIVE_PARAMS) {
+		if(num==PRIMEDIT) {
 			executeCommands(llParseStringKeepNulls(str, ["~"], []));
 		}
 		else if(num==MEMORY_USAGE) {
 			llSay(0,"Memory Used by " + llGetScriptName() + ": " + (string)llGetUsedMemory() + " of " + (string)llGetMemoryLimit()
 				+ ", Leaving " + (string)llGetFreeMemory() + " memory free.");
 		}
+	}
+	on_rez(integer param) {
+		llResetScript();
 	}
 }

@@ -1,22 +1,64 @@
-# Color-Texture-Plugin
+# nPose Prim Params Editor plugin
 
-nPose Color/Texture rev. 0.05:                  
-        
-New Features:
-This plugin now will relay out on it's arbNum as a chat channel to any in world prims not associated with nPose.  To use this feature add this script to the nPose base and to the in world prim to receive the color/texture changes.  Also add "In World Listener Script" to the in world prim within the linked build.
+## Requirements
+nPose V3 and above.
 
-   
-The nPose prop texturing script is to be placed in any link set that will be retextured by the nPose menu (selected by the builder).  Props can also be colored using this same plugin.  Pick a word that describes the prop/child prims to be retextured and include that word in the notecard.  Retexturing will only be applied to prop prims that contain this description and included in the notecard.  The menu is driven by the normal BTN notecards similarly used to setup poses.  Either the uuid for a texture can be used or the name of a texture placed within the prim of the prop as the script.
+##Usage
+The plugin contains 2 scripts `nPose Prim Params Editor plugin, main` (we will call it the `main`script) and `nPose Prim Params Editor plugin, storage` (we will call it the `storage`script).
+### `main` Script
+The `main` script has to be placed into the linkset you want to manipulate. This can be the nPose main Object and/or a prop or if you want to manipulate both then place it into both.
+### `storage` Script
+The `storage` script is optional. If you don't work with props, you don't need it. If you work with props, you may want to rez a prop with the same appearance that was selected previously. To achieve this, place the `storage` script into the main object.
+### Prim description
+to "address" a prim inside a linkset we use the description field of the prim to give it an identifier. Please don't use plain numbers as identifier. If you want to give a prim more than one identifier then separate the identifiers by `~`. You can also use one identifier for more than one prim.
+### Command Syntax
+```
+LINKMSG|-8050|command~identifier~parameter[~parameter...][~command~identifier~parameter[~parameter...]...]
+```
+### Example
+```
+LINKMSG|-8050|COLOR~mainObject~-1~<1.0, 0.0, 0.0>
+```
+This will set the color of all faces of the prim with the description mainObject to red.
+
+####commands
+| command            | parameters                        | description |
+| ------------------ | --------------------------------- | ----------- |
+| `TEXTURE`          | integer face, string uuid or name |
+| `COLOR`            | integer face, vector color        |
+| `ALPHA`            | integer face, float alpha         |
+
+Additionally all non deprecated "commands" (but one) of the [llSetPrimitiveParams](http://wiki.secondlife.com/wiki/LlSetPrimitiveParams) LSL command are implemented.
+```
+PRIM_MATERIAL
+PRIM_PHYSICS
+PRIM_TEMP_ON_REZ
+PRIM_PHANTOM
+PRIM_POSITION
+PRIM_SIZE
+PRIM_ROTATION
+PRIM_TEXTURE
+PRIM_COLOR
+PRIM_BUMP_SHINY
+PRIM_FULLBRIGHT
+PRIM_FLEXIBLE
+PRIM_TEXGEN
+PRIM_POINT_LIGHT
+PRIM_GLOW
+PRIM_TEXT
+PRIM_DESC
+PRIM_ROT_LOCAL
+PRIM_PHYSICS_SHAPE_TYPE
+PRIM_OMEGA
+PRIM_POS_LOCAL
+PRIM_LINK_TARGET
+PRIM_SLICE
+PRIM_SPECULAR
+PRIM_NORMAL
+PRIM_ALPHA_MODE
+PRIM_ALLOW_UNSIT
+PRIM_SCRIPTED_SIT_ONLY
+PRIM_SIT_TARGET
+```
+
  
-Use BTN notecard to set color and texture of prims and/or props from menu. The plugin looks for prims with matching name in the Description Field.
-After a texture or color has been set, the script will remember what has been used.  If props are rezzed later and has the matching name in their description, they will automatically change to the saved color and texture.  In a case where my over-stuffed chair rezzes an ottoman for some pose sets, the ottoman will automatically re-texture to match what I have set for my chair.
-        
-Example that sets the color (red) and texture (blank) of all prims with ~base in their description:
-        LINKMSG|-22452987|<0.77255, 0.00000, 0.00000>~-1~base|72a7b646-2c43-2a6a-46c3-6250a8b30312
-        
-Example that sets the color (white) and the texture (Old Leather) to all prims with ~upolstery in their description:
-        LINKMSG|-22452987|<1.00000, 1.00000, 1.00000>~-1~upolstery|ef45698a-b697-8da7-c3ec-43ad9f93334d
-
-Version History:
-rev. 0.05
-initial release
