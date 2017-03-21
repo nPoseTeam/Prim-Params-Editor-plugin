@@ -3,7 +3,7 @@
 ## Requirements
 nPose V3 and above.
 
-##Usage
+## Usage
 The plugin contains 2 scripts `nPose Prim Params Editor plugin, main` (we will call it the `main`script) and `nPose Prim Params Editor plugin, storage` (we will call it the `storage`script).
 ### `main` Script
 The `main` script has to be placed into the linkset you want to manipulate. This can be the nPose main Object and/or a prop or if you want to manipulate both then place it into both.
@@ -21,12 +21,12 @@ LINKMSG|-8050|COLOR~mainObject~-1~<1.0, 0.0, 0.0>
 ```
 This will set the color of all faces of the prim with the description mainObject to red.
 
-####commands
+#### commands
 | command            | parameters                        | description |
 | ------------------ | --------------------------------- | ----------- |
-| `TEXTURE`          | integer face, string uuid or name |
-| `COLOR`            | integer face, vector color        |
-| `ALPHA`            | integer face, float alpha         |
+| `TEXTURE`          | integer face, string uuid or name |  |
+| `COLOR`            | integer face, vector color        |  |
+| `ALPHA`            | integer face, float alpha         |  |
 
 Additionally all non deprecated "commands" (but one) of the [llSetPrimitiveParams](http://wiki.secondlife.com/wiki/LlSetPrimitiveParams) LSL command are implemented.
 ```
