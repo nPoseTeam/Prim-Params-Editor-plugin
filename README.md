@@ -13,20 +13,22 @@ The `storage` script is optional. If you don't work with props, you don't need i
 to "address" a prim inside a linkset we use the description field of the prim to give it an identifier. Please don't use plain numbers as identifier. If you want to give a prim more than one identifier then separate the identifiers by `~`. You can also use one identifier for more than one prim.
 ### Command Syntax
 ```
-LINKMSG|-8050|command~identifier~parameter[~parameter...][~command~identifier~parameter[~parameter...]...]
+PRIMEDIT|command~identifier~parameter[~parameter...][~command~identifier~parameter[~parameter...]...]
 ```
 ### Example
 ```
-LINKMSG|-8050|COLOR~mainObject~-1~<1.0, 0.0, 0.0>
+PRIMEDIT|COLOR~mainObject~-1~<1.0, 0.0, 0.0>
 ```
 This will set the color of all faces of the prim with the description mainObject to red.
 
 #### commands
-| command            | parameters                        | description |
-| ------------------ | --------------------------------- | ----------- |
-| `TEXTURE`          | integer face, string uuid or name |  |
-| `COLOR`            | integer face, vector color        |  |
-| `ALPHA`            | integer face, float alpha         |  |
+| command            | parameters                                                      | description |
+| ------------------ | --------------------------------------------------------------- | ----------- |
+| `TEXTURE`          | integer face, string uuid or name                               | puts a texture onto the prim |
+| `COLOR`            | integer face, vector color                                      | sets the color of a prim |
+| `ALPHA`            | integer face, float alpha                                       | sets the transparency of a prim |
+| `REL_POS_LOCAL`    | vector referenceSize, vector currentSize, vector targetPosition | moves a prim within the linkset to a postion (relative to the current size of the object) |
+| `REL_SIZE`         | vector referenceSize, vector currentSize, vector targetSize     | scales a prim (relative to the current size of the object) |
 
 Additionally all non deprecated "commands" (but one) of the [llSetPrimitiveParams](http://wiki.secondlife.com/wiki/LlSetPrimitiveParams) LSL command are implemented.
 ```

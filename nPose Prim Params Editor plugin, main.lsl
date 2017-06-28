@@ -22,6 +22,8 @@ list LOOKUP_TABLE=[
 	"TEXTURE", 0, TRUE, "is",
 	"COLOR", 0, TRUE, "iv",
 	"ALPHA", 0, TRUE, "if",
+	"REL_POS_LOCAL", 0, FALSE, "vvv",
+	"REL_SIZE", 0, FALSE, "vvv",
 	"PRIM_MATERIAL", PRIM_MATERIAL, FALSE, "i",
 	"PRIM_PHYSICS", PRIM_PHYSICS, FALSE, "i",
 	"PRIM_TEMP_ON_REZ", PRIM_TEMP_ON_REZ, FALSE, "i",
@@ -142,6 +144,28 @@ executeCommand(integer commandInteger, integer faceUsedFlag, string command, str
 		else if(command=="ALPHA") {
 			llSetLinkAlpha(linkNumber, llList2Float(parameterList, 1), llList2Integer(parameterList, 0));
 		}
+		else if(command=="REL_POS_LOCAL" || command=="REL_SIZE") {
+			vector reference=llList2Vector(parameterList, 0);
+			vector current=llList2Vector(parameterList, 1);
+			vector target=llList2Vector(parameterList, 2);
+			
+			if(reference.x!=0.0 && reference.y!=0.0 && reference.z!=0.0) {
+				//only use a scale factor if the reference is set / avoid division by zero
+				target=<
+					target.x * current.x / reference.x,
+					target.y * current.y / reference.y,
+					target.z * current.z / reference.z
+				>;
+			}
+			//limit the values
+			target=vectorMin(target, <64.0, 64.0, 64.0>);
+			if(command=="REL_POS_LOCAL") {
+				llSetLinkPrimitiveParamsFast(linkNumber, [PRIM_POS_LOCAL, target]);
+			}
+			else if(command=="REL_SIZE") {
+				llSetLinkPrimitiveParamsFast(linkNumber, [PRIM_SIZE, target]);
+			}
+		}
 	}
 }
 
@@ -206,6 +230,16 @@ list getLinkNumbersFromLinkNumberList(list linkNumberList, string linkDesc) {
 		return llParseString2List(llList2String(linkNumberList, index+1), ["~"], []);
 	}
 	return [];
+}
+
+float floatMin(float value1, float value2) {
+	if(value1<value2) {
+		return value1;
+	}
+	return value2;
+}
+vector vectorMin(vector value1, vector value2) {
+	return <floatMin(value1.x, value2.x), floatMin(value1.y, value2.y), floatMin(value1.z, value2.z)>;
 }
 
 default {
