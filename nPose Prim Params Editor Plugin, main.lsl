@@ -24,6 +24,8 @@ list LOOKUP_TABLE=[
 	"ALPHA", 0, TRUE, "if",
 	"REL_POS_LOCAL", 0, FALSE, "vvv",
 	"REL_SIZE", 0, FALSE, "vvv",
+	"OFFSET_POSITION", 0, FALSE, "vv",
+	"OFFSET_REL_POSITION", 0, FALSE, "vvvv",
 	"PRIM_MATERIAL", PRIM_MATERIAL, FALSE, "i",
 	"PRIM_PHYSICS", PRIM_PHYSICS, FALSE, "i",
 	"PRIM_TEMP_ON_REZ", PRIM_TEMP_ON_REZ, FALSE, "i",
@@ -68,6 +70,30 @@ list LinkNumberList; //2-strided list [linkDescription, linkNumber]
 debug(list message){
 	llOwnerSay((((llGetScriptName() + "\n##########\n#>") + llDumpList2String(message,"\n#>")) + "\n##########"));
 }
+
+vector vectorScale(vector reference, vector current, vector target) {
+	if(reference.x!=0.0 && reference.y!=0.0 && reference.z!=0.0) {
+		//only use a scale factor if the reference is set / avoid division by zero
+		target=<
+			target.x * current.x / reference.x,
+			target.y * current.y / reference.y,
+			target.z * current.z / reference.z
+		>;
+	}
+	return target;
+}
+
+vector vectorMin(vector value1, vector value2) {
+	return <floatMin(value1.x, value2.x), floatMin(value1.y, value2.y), floatMin(value1.z, value2.z)>;
+}
+
+float floatMin(float value1, float value2) {
+	if(value1<value2) {
+		return value1;
+	}
+	return value2;
+}
+
 
 executeCommands(list allCommands) {
 	LinkNumberList=getLinkNumberList();
@@ -149,22 +175,23 @@ executeCommand(integer commandInteger, integer faceUsedFlag, string command, str
 			vector current=llList2Vector(parameterList, 1);
 			vector target=llList2Vector(parameterList, 2);
 			
-			if(reference.x!=0.0 && reference.y!=0.0 && reference.z!=0.0) {
-				//only use a scale factor if the reference is set / avoid division by zero
-				target=<
-					target.x * current.x / reference.x,
-					target.y * current.y / reference.y,
-					target.z * current.z / reference.z
-				>;
-			}
-			//limit the values
-			target=vectorMin(target, <64.0, 64.0, 64.0>);
+			target=vectorMin(vectorScale(reference, current, target), <64.0, 64.0, 64.0>);
 			if(command=="REL_POS_LOCAL") {
 				llSetLinkPrimitiveParamsFast(linkNumber, [PRIM_POS_LOCAL, target]);
 			}
 			else if(command=="REL_SIZE") {
 				llSetLinkPrimitiveParamsFast(linkNumber, [PRIM_SIZE, target]);
 			}
+		}
+		else if(command=="OFFSET_POSITION") {
+			llSetLinkPrimitiveParamsFast(linkNumber, [PRIM_POSITION, llList2Vector(parameterList, 0) + llList2Vector(parameterList, 1)]);
+		}
+		else if(command=="OFFSET_REL_POSITION") {
+			vector offset=llList2Vector(parameterList, 0);
+			vector reference=llList2Vector(parameterList, 1);
+			vector current=llList2Vector(parameterList, 2);
+			vector target=llList2Vector(parameterList, 3);
+			llSetLinkPrimitiveParamsFast(linkNumber, [PRIM_POSITION, offset + vectorScale(reference, current, target)]);
 		}
 	}
 }
@@ -178,22 +205,15 @@ list getLinkNumberList() {
 	list tempList;
 	list retList;
 	integer count=llGetObjectPrimCount(llGetKey());
+	integer numberOfPrims=llGetNumberOfPrims();
+	integer index=count>1 || numberOfPrims>1;
 	if(!count) {
-		count=llGetNumberOfPrims();
+		count=numberOfPrims;
 	}
-	if(count<=1) {
-		string description=llList2String(llGetPrimitiveParams([PRIM_DESC]), 0);
+	for(; index<=count; index++) {
+		string description=llList2String(llGetLinkPrimitiveParams(index, [PRIM_DESC]), 0);
 		if(description!="(No Description)" && description!="") {
-			tempList+=[description, 0];
-		}
-	}
-	else {
-		integer index=1;
-		for(; index<=count; index++) {
-			string description=llList2String(llGetLinkPrimitiveParams(index, [PRIM_DESC]), 0);
-			if(description!="(No Description)" && description!="") {
-				tempList+=[description, index];
-			}
+			tempList+=[description, index];
 		}
 	}
 	integer indexTempList;
@@ -232,15 +252,6 @@ list getLinkNumbersFromLinkNumberList(list linkNumberList, string linkDesc) {
 	return [];
 }
 
-float floatMin(float value1, float value2) {
-	if(value1<value2) {
-		return value1;
-	}
-	return value2;
-}
-vector vectorMin(vector value1, vector value2) {
-	return <floatMin(value1.x, value2.x), floatMin(value1.y, value2.y), floatMin(value1.z, value2.z)>;
-}
 
 default {
 	state_entry() {

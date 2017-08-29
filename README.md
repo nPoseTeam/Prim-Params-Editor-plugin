@@ -10,7 +10,7 @@ The `main` script has to be placed into the linkset you want to manipulate. This
 ### `storage` Script
 The `storage` script is optional. If you don't work with props, you don't need it. If you work with props, you may want to rez a prop with the same appearance that was selected previously. To achieve this, place the `storage` script into the main object.
 ### Prim description
-to "address" a prim inside a linkset we use the description field of the prim to give it an identifier. Please don't use plain numbers as identifier. If you want to give a prim more than one identifier then separate the identifiers by `~`. You can also use one identifier for more than one prim.
+To "address" a prim inside a linkset we use the description field of the prim to give it an identifier. Please don't use plain numbers as identifier. If you want to give a prim more than one identifier then separate the identifiers by `~`. You can also use one identifier for more than one prim.
 ### Command Syntax
 ```
 PRIMEDIT|command~identifier~parameter[~parameter...][~command~identifier~parameter[~parameter...]...]
@@ -21,16 +21,19 @@ PRIMEDIT|COLOR~mainObject~-1~<1.0, 0.0, 0.0>
 ```
 This will set the color of all faces of the prim with the description mainObject to red.
 
-#### commands
-| command            | parameters                                                      | description |
-| ------------------ | --------------------------------------------------------------- | ----------- |
-| `TEXTURE`          | integer face, string uuid or name                               | puts a texture onto the prim |
-| `COLOR`            | integer face, vector color                                      | sets the color of a prim |
-| `ALPHA`            | integer face, float alpha                                       | sets the transparency of a prim |
-| `REL_POS_LOCAL`    | vector referenceSize, vector currentSize, vector targetPosition | moves a prim within the linkset to a postion (relative to the current size of the object) |
-| `REL_SIZE`         | vector referenceSize, vector currentSize, vector targetSize     | scales a prim (relative to the current size of the object) |
+## commands
+| command               | Version | parameters                                                                     | description |
+| --------------------- | ------- | ------------------------------------------------------------------------------ | ----------- |
+| `TEXTURE`             | 1.00    | integer face, string uuid or name                                              | puts a texture onto the prim |
+| `COLOR`               | 1.00    | integer face, vector color                                                     | sets the color of a prim |
+| `ALPHA`               | 1.00    | integer face, float alpha                                                      | sets the transparency of a prim |
+| `REL_POS_LOCAL`       | 1.00    | vector referenceSize, vector currentSize, vector targetPosition                | moves a prim within the linkset to a postion (relative to the current size of the object) |
+| `REL_SIZE`            | 1.00    | vector referenceSize, vector currentSize, vector targetSize                    | scales a prim (relative to the current size of the object) |
+| `OFFSET_POSITION`     | 1.01    | vector offset, vector targetPosition                                           | moves a prim to offset+targetPosition |
+| `OFFSET_REL_POSITION` | 1.01    | vector offset, vector referenceSize, vector currentSize, vector targetPosition | moves a prim to offset+relativeTargetPosition |
+| `PRIM_`...            | 1.00    | see below                                                                      | see below |
 
-Additionally all non deprecated "commands" (but one) of the [llSetPrimitiveParams](http://wiki.secondlife.com/wiki/LlSetPrimitiveParams) LSL command are implemented.
+All non deprecated "commands" (but one) of the [llSetPrimitiveParams](http://wiki.secondlife.com/wiki/LlSetPrimitiveParams) LSL command are implemented.
 ```
 PRIM_MATERIAL
 PRIM_PHYSICS
