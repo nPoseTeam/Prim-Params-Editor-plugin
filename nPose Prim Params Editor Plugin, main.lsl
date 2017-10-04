@@ -255,7 +255,7 @@ list getLinkNumbersFromLinkNumberList(list linkNumberList, string linkDesc) {
 
 default {
 	state_entry() {
-		llSleep(1.0); //Wait for other scripts
+		llSleep(1.5); //Wait for other scripts
 		llMessageLinked(LINK_SET, PLUGIN_COMMAND_REGISTER, llDumpList2String([PLUGIN_COMMAND_NAME, PRIMEDIT, 1], "|"), NULL_KEY); 
 	}
 	link_message(integer sender_num, integer num, string str, key id) {
