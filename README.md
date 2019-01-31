@@ -10,7 +10,7 @@ PLUGINCOMMAND|PRIMEDIT|-8500
 ```
 If you want to use the Prim Params Editor plugin for props add the following lines (instead of the above);
 ```
-PLUGINCOMMAND|PRIMEDIT|-8500
+PLUGINCOMMAND|PRIMEDIT|-8500|1
 ```
 The plugin contains 2 scripts `nPose Prim Params Editor plugin, main` (we will call it the `main`script) and `nPose Prim Params Editor plugin, storage` (we will call it the `storage`script).
 ### `main` Script
