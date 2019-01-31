@@ -4,6 +4,14 @@
 nPose V3 and above.
 
 ## Usage
+Add the following line to the top of your `.init` NC (if you don't have an `.init` NC then create one):
+```
+PLUGINCOMMAND|PRIMEDIT|-8500
+```
+If you want to use the Prim Params Editor plugin for props add the following lines (instead of the above);
+```
+PLUGINCOMMAND|PRIMEDIT|-8500
+```
 The plugin contains 2 scripts `nPose Prim Params Editor plugin, main` (we will call it the `main`script) and `nPose Prim Params Editor plugin, storage` (we will call it the `storage`script).
 ### `main` Script
 The `main` script has to be placed into the linkset you want to manipulate. This can be the nPose main Object and/or a prop or if you want to manipulate both then place it into both.
