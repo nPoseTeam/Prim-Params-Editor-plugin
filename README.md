@@ -1,7 +1,7 @@
 # nPose Prim Params Editor plugin
 
 ## Requirements
-nPose V3 and above.
+nPose V4.00 and above.
 
 ## Usage
 Add the following line to the top of your `.init` NC (if you don't have an `.init` NC then create one):
